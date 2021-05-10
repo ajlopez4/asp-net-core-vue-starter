@@ -4,7 +4,14 @@ using Microsoft.AspNetCore.SpaServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using VueCliMiddleware;
+using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using AspNetCoreVueStarter.Models;
+using AspNetCoreVueStarter.Services;
+using AspNetCoreVueStarter.Helpers;
 
 namespace AspNetCoreVueStarter
 {
@@ -20,8 +27,13 @@ namespace AspNetCoreVueStarter
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                    .AddEntityFrameworkStores<coreDBContext>();
+            //services.AddCors(); //add from jwt auth
             services.AddControllersWithViews();
-
+            //services.AddControllers();//add from jwt auth
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddScoped<IUserService, UserService>();
             // Add AddRazorPages if the app uses Razor Pages.
             services.AddRazorPages();
 
@@ -30,11 +42,38 @@ namespace AspNetCoreVueStarter
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            //Register the swagger generator
+            services.AddSwaggerGen((options) =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            });
+
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo
+            //    {
+            //        Title = "testing",
+            //        Version = "v1"
+            //    });
+            //});
+
+            // configure DI for application services
+            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Enable middleware to serve generated Swagger as a JSON endpoint
+            app.UseSwagger();
+
+            // Specify the Swagger JSON endpoint
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,10 +87,23 @@ namespace AspNetCoreVueStarter
             }
 
             app.UseStaticFiles();
+            
+            
             app.UseSpaStaticFiles();
+            app.UseStaticFiles();
 
+            //added for authentication
             app.UseRouting();
-
+            // global cors policy
+            //app.UseCors(x => x
+            //    .AllowAnyOrigin()
+            //    .AllowAnyMethod()
+            //    .AllowAnyHeader());
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
+            //app.UseEndpoints(x => x.MapControllers());
+            app.UseMiddleware<JwtMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -75,6 +127,9 @@ namespace AspNetCoreVueStarter
             {
                 spa.Options.SourcePath = "ClientApp";
             });
+
+           
+            
         }
     }
 }

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroup')]/providers/Microsoft.Sql/servers/sqlservertest2db/databases/coreDB",
+      "type": "mssql.azure",
+      "connectionId": "sqlservertest2db.database.windows.net",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}

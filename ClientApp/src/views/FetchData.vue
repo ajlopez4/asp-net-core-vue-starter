@@ -75,7 +75,7 @@ export default Vue.extend({
     },
     async fetchWeatherForecasts() {
       try {
-        const response = await axios.get<Forecast[]>('api/WeatherForecast');
+          const response = await axios.get<Forecast[]>('api/WeatherForecast/getdata');
         this.forecasts = response.data;
       } catch (e) {
         this.showError = true;

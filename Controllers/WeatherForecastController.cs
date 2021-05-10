@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AspNetCoreVueStarter.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using AspNetCoreVueStarter.Services;
 
 namespace AspNetCoreVueStarter.Controllers
 {
@@ -12,6 +13,7 @@ namespace AspNetCoreVueStarter.Controllers
     [ApiController]
     public class WeatherForecastController : ControllerBase
     {
+        private readonly WeatherForecastService _service;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching","test"
@@ -22,19 +24,46 @@ namespace AspNetCoreVueStarter.Controllers
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
+            _service = new WeatherForecastService();
         }
 
-        [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("getdata")]
+        public IActionResult getdata()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            var response = _service.getdata();
+            return Ok(response);
         }
+
+        //[HttpGet]
+        //public IActionResult TestGet()
+        //{
+        //    var response = _service.TestGet();
+        //    return Ok(response);
+        //}
+        //public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        //{
+        //    _logger = logger;
+        //}
+
+        //[HttpGet]
+        //public IEnumerable<WeatherForecast> Get()
+        //{
+        //    var rng = new Random();
+        //    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        //    {
+        //        Date = DateTime.Now.AddDays(index),
+        //        TemperatureC = rng.Next(-20, 55),
+        //        Summary = Summaries[rng.Next(Summaries.Length)]
+        //    })
+        //    .ToArray();
+        //}
+
+        //[HttpGet("WeatherForecasts")]
+        //public IActionResult WeatherForecasts()
+        //{
+        //    var response = _service.WeatherForecasts();
+        //    return Ok(response);
+        //}
+
     }
 }

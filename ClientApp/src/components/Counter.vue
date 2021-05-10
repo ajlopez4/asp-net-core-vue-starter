@@ -24,6 +24,7 @@ export default class Counter extends Vue {
 
   private increment() {
     this.incrementCounter();
+    console.log("test");
   }
   private reset() {
     this.resetCounter();
